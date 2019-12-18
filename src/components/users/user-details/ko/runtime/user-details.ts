@@ -10,6 +10,9 @@ import { BackendService } from "../../../../../services/backendService";
 import { Router } from "@paperbits/common/routing/router";
 import { pageUrlChangePassword } from "../../../../../constants";
 import { Utils } from "../../../../../utils";
+import { CustomService } from "../../../../../services/customService";
+import { Application } from "../../../../../custom-models/application";
+import { ApplicationContract } from "../../../../../custom-contracts/application";
 
 @RuntimeComponent({ selector: "user-details" })
 @Component({
@@ -27,8 +30,10 @@ export class UserDetails {
     public password: ko.Observable<string>;
     public confirmPassword: ko.Observable<string>;
     public user: ko.Observable<User>;
+    public application: ko.Observable<Application>;
 
     constructor(
+        private readonly customService: CustomService,
         private readonly usersService: UsersService, 
         private readonly tenantService: TenantService,
         private readonly backendService: BackendService,
@@ -42,6 +47,7 @@ export class UserDetails {
         this.isEdit = ko.observable(false);
         this.working = ko.observable(false);
         this.registrationDate = ko.computed(() => this.getRegistrationDate());
+        this.application = ko.observable();
     }
 
     @OnMounted()
@@ -51,6 +57,16 @@ export class UserDetails {
         const model: User = await this.usersService.getCurrentUser();
 
         this.setUser(model);
+
+        const appContract: ApplicationContract = await this.customService.getApplication("53444826-ce90-4116-8345-2e7232e53db6");
+
+        const appModel: Application = new Application(appContract);
+
+        console.log(appModel);
+
+        if (appModel) {
+            this.application(appModel);
+        }
     }
 
     private async isDelegation(action: DelegationAction): Promise<void> {

@@ -61,6 +61,7 @@ import { VisibilityGuard } from "@paperbits/common/user";
 import { StaticUserService } from "./services";
 import { SignOutRouteGuard } from "./routing/signOutRouteGuard";
 import { ProvisionService } from "./services/provisioningService";
+import { CustomService } from "./services/customService";
 
 export class ApimRuntimeModule implements IInjectorModule {
     public register(injector: IInjector): void {
@@ -109,6 +110,7 @@ export class ApimRuntimeModule implements IInjectorModule {
         injector.bind("confirmPassword", ConfirmPassword);
         injector.bind("changePassword", ChangePassword);
         injector.bind("spinner", Spinner);
+        injector.bind("customService", CustomService);
         injector.bindSingleton("tenantService", TenantService);
         injector.bindSingleton("backendService", BackendService);
         injector.bindSingleton("aadService", AadService);

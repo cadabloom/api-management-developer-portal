@@ -1,6 +1,7 @@
 import { InversifyInjector } from "@paperbits/common/injection";
 import { ApimRuntimeModule } from "./apim.runtime.module";
 import { HistoryRouteHandler, LocationRouteHandler } from "@paperbits/common/routing";
+import { CustomService } from "./services/customService";
 
 document.addEventListener("DOMContentLoaded", () => {
     const injector = new InversifyInjector();
@@ -14,4 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     injector.resolve("autostart");
+
+    let customService: CustomService = injector.resolve("customService");
+    customService.initialize();
+
 });

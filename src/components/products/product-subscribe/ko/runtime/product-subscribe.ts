@@ -11,6 +11,7 @@ import { TenantService } from "../../../../../services/tenantService";
 import { BackendService } from "../../../../../services/backendService";
 import { DelegationParameters, DelegationAction } from "../../../../../contracts/tenantSettings";
 import { RouteHelper } from "../../../../../routing/routeHelper";
+import { CustomService } from "../../../../../services/customService";
 
 @RuntimeComponent({ selector: "product-subscribe-runtime" })
 @Component({
@@ -36,7 +37,8 @@ export class ProductSubscribe {
         private readonly backendService: BackendService,
         private readonly productService: ProductService,
         private readonly router: Router,
-        private readonly routeHelper: RouteHelper
+        private readonly routeHelper: RouteHelper,
+        private readonly customService: CustomService
     ) {
         this.product = ko.observable();
         this.showTermsOfUse = ko.observable();
@@ -58,6 +60,11 @@ export class ProductSubscribe {
         this.router.addRouteChangeListener(this.loadProduct);
 
         await this.loadProduct();
+
+        let testString: String = await this.customService.test();
+        let applicationObject: any = await this.customService.getApplication("53444826-ce90-4116-8345-2e7232e53db6");
+        console.log(testString);
+        console.log(applicationObject);
     }
 
     private async loadProduct(): Promise<void> {
