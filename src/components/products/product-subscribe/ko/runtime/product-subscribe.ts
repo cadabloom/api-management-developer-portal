@@ -61,9 +61,8 @@ export class ProductSubscribe {
 
         await this.loadProduct();
 
-        let testString: String = await this.customService.test();
         let applicationObject: any = await this.customService.getApplication("53444826-ce90-4116-8345-2e7232e53db6");
-        console.log(testString);
+
         console.log(applicationObject);
     }
 
