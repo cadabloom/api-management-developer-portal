@@ -83,5 +83,7 @@ export const SettingNames = {
     backendUrl: "backendUrl",
     managementApiUrl: "managementApiUrl",
     managementApiVersion: "managementApiVersion",
-    managementApiAccessToken: "managementApiAccessToken"
+    managementApiAccessToken: "managementApiAccessToken",
+    customGraphApiUrl: "customGraphApiUrl",
+    customGraphApiUrlSubscriptionkey: "customGraphApiUrlSubscriptionkey"
 };
