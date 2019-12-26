@@ -57,6 +57,8 @@ import { ValidationSummaryEditorModule} from "./components/users/validation-summ
 import { BackendService } from "./services/backendService";
 import { StaticRoleService } from "./services/roleService";
 import { ProvisionService } from "./services/provisioningService";
+import { AdminApplicaitonsEditorModule } from "./components/admin/applications/ko/adminApplicationsEditor.module";
+import { AdminApplicaitonsModule } from "./components/admin/applications/ko/adminApplications.module";
 
 
 export class ApimDesignModule implements IInjectorModule {
@@ -106,6 +108,8 @@ export class ApimDesignModule implements IInjectorModule {
         injector.bindModule(new HelpModule());
         injector.bindModule(new ValidationSummaryEditorModule());
         injector.bindModule(new ValidationSummaryModule());
+        injector.bindModule(new AdminApplicaitonsEditorModule());
+        injector.bindModule(new AdminApplicaitonsModule());
         injector.bindSingleton("app", App);
         injector.bindSingleton("logger", ConsoleLogger);
         injector.bindSingleton("blobStorage", AzureBlobStorage);

@@ -65,7 +65,7 @@
     <!-- ko if: user -->
     <!-- ko if: application -->
     <textblock>
-        <h2>Application Info</h2>
+        <h2>Client credential</h2>
     </textblock>
 
     <div class="panel panel-table">
@@ -74,16 +74,16 @@
             <div class="col-md-3">App id</div>
             <div class="col-md-9" data-bind="text: application().appId"></div>
         </div>
-        <div class="row">
+        <!--<div class="row">
             <div class="col-md-3">Display name</div>
             <div class="col-md-9" data-bind="text: application().displayName"></div>
-        </div>
+        </div>-->
         <div class="row">
             <div class="col-md-3">Id</div>
             <div class="col-md-9" data-bind="text: application().id"></div>
         </div>
 
-        <h4>Credentials</h4>
+        <h4>Secret</h4>
 
         <div class="table">
             <div class="table-head">
