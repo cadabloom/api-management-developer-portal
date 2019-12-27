@@ -1,4 +1,4 @@
-import { HttpClient, HttpResponse, HttpRequest, HttpMethod } from "@paperbits/common/http";
+import { HttpClient, HttpResponse, HttpRequest, HttpMethod, HttpHeader } from "@paperbits/common/http";
 import { ISettingsProvider, Settings } from "@paperbits/common/configuration";
 import { Router } from "@paperbits/common/routing";
 import { RouteHelper } from "../routing/routeHelper";
@@ -9,6 +9,11 @@ import { UsersService } from ".";
 import { User } from "../models/user";
 import { Group } from "../custom-models/group";
 import { ClientAppContract } from "../custom-contracts/clientApp";
+import { ClientApp } from "../custom-models/clientApp";
+import { ClientAppRequest } from "../custom-contracts/clientAppRrequest";
+import { Application } from "../custom-models/application";
+import { ApproveAppRequest } from "../custom-contracts/approveAppRequest";
+import { ApplicationContract } from "../custom-contracts/application";
 
 export class CustomService {
     private customGraphApiUrl: string;
@@ -25,9 +30,9 @@ export class CustomService {
     public async initialize(): Promise<void> {
         const settings = await this.settingsProvider.getSettings();
         console.log("TEST");
-        const token = this.authenticator.getAccessToken();
+        const token = await this.authenticator.getAccessToken();
         console.log(settings, token);
-        if (this.usersService.isUserSignedIn()) {
+        if (await this.usersService.isUserSignedIn()) {
             let user: User = await this.usersService.getCurrentUser();
             console.log(user);
             let response = await this.getUserGroups(user.id);
@@ -59,7 +64,7 @@ export class CustomService {
     }
 
     public async createAppRegistrationForUser(): Promise<any> {
-        const sasToken: string = this.authenticator.getAccessToken();
+        const sasToken: string = await this.authenticator.getAccessToken();
         let customGraphApiUrlSubscriptionkey: string = await this.settingsProvider.getSetting<string>(SettingNames.customGraphApiUrlSubscriptionkey);
         let response: HttpResponse<any>;
         const httpRequest: HttpRequest = {
@@ -75,6 +80,44 @@ export class CustomService {
         }
     }
 
+    public async createClientApp(userId: string, organizationName: string): Promise<any> {
+        const clientApp: ClientAppRequest = { clientAppWebsiteUserId: userId, organizationName: organizationName, description: '' };
+
+        let response: HttpResponse<any>;
+        const httpRequest: HttpRequest = {
+            method: HttpMethod.post,
+            url: await this.getUrl(`/echo/clientapps`),
+            headers: await this.initHeaders(),
+            body: clientApp
+        }
+
+        try {
+            response = await this.httpClient.send<any>(httpRequest);
+        } catch (error) {
+            throw new Error(`Unable to complete request. Error: ${error.message}`);
+        }
+    }
+
+    public async approveClientApp(id:number, title:string): Promise<any> {
+        const appRegistration: ApplicationContract = await this.createAppRegistrationForUser();
+        const approveAppRequest: ApproveAppRequest = { description: '', title: title, identityServerClientId: appRegistration.appId, id: id };
+
+        let response: HttpResponse<any>;
+        const httpRequest: HttpRequest = {
+            method: HttpMethod.put,
+            url: await this.getUrl(`/echo/clientapps`),
+            headers: await this.initHeaders(),
+            body: approveAppRequest
+        }
+
+        try {
+            response = await this.httpClient.send<any>(httpRequest);
+        } catch (error) {
+            throw new Error(`Unable to complete request. Error: ${error.message}`);
+        }
+
+    }
+
     public async getUserGroups(userId: string): Promise<GroupValueContract> {
         //users/${userId}/groups?api-version=2019-01-01
         let response: HttpResponse<GroupValueContract>;
@@ -82,7 +125,7 @@ export class CustomService {
         const httpRequest: HttpRequest = {
             method: HttpMethod.get,
             url: await this.getUrl(`/echo${userId}/groups?api-version=2019-01-01`),
-            headers: [{ name: SettingNames.subscriptionKeyHeaderName, value: customGraphApiUrlSubscriptionkey }, { name: "Authorization", value: this.authenticator.getAccessToken() }]
+            headers: [{ name: SettingNames.subscriptionKeyHeaderName, value: customGraphApiUrlSubscriptionkey }, { name: "Authorization", value: await this.authenticator.getAccessToken() }]
         }
 
         try {
@@ -100,12 +143,30 @@ export class CustomService {
 
         const httpRequest: HttpRequest = {
             method: HttpMethod.get,
-            url: await this.getUrl(`/echo/getapplicationsfunction`),
-            headers: [{ name: SettingNames.subscriptionKeyHeaderName, value: customGraphApiUrlSubscriptionkey }, { name: "Authorization", value: this.authenticator.getAccessToken() }]
+            url: await this.getUrl(`/echo/clientapps`),
+            headers: [{ name: SettingNames.subscriptionKeyHeaderName, value: customGraphApiUrlSubscriptionkey }, { name: "Authorization", value: await this.authenticator.getAccessToken() }]
         }
 
         try {
             response = await this.httpClient.send<Array<ClientAppContract>>(httpRequest);
+        } catch (error) {
+            throw new Error(`Unable to complete request. Error: ${error.message}`);
+        }
+
+        return this.handleResponse(response);
+    }
+
+    public async getUserClientApplication(userId: string): Promise<ClientAppContract> {
+        let response: HttpResponse<ClientAppContract>;
+
+        const httpRequest: HttpRequest = {
+            method: HttpMethod.get,
+            url: await this.getUrl(`/echo/appwebsiteusers/${userId}`),
+            headers: await this.initHeaders()
+        }
+
+        try {
+            response = await this.httpClient.send<ClientAppContract>(httpRequest);
         } catch (error) {
             throw new Error(`Unable to complete request. Error: ${error.message}`);
         }
@@ -124,6 +185,16 @@ export class CustomService {
         }
 
         return isAdmin;
+    }
+
+    private async initHeaders(): Promise<HttpHeader[]> {
+        let customGraphApiUrlSubscriptionkey: string = await this.settingsProvider.getSetting<string>(SettingNames.customGraphApiUrlSubscriptionkey);
+        return [{ name: SettingNames.subscriptionKeyHeaderName, value: customGraphApiUrlSubscriptionkey }];
+    }
+
+    private async initHeadersWithAuthorization(): Promise<HttpHeader[]> {
+        let customGraphApiUrlSubscriptionkey: string = await this.settingsProvider.getSetting<string>(SettingNames.customGraphApiUrlSubscriptionkey);
+        return [{ name: SettingNames.subscriptionKeyHeaderName, value: customGraphApiUrlSubscriptionkey }, { name: "Authorization", value: await this.authenticator.getAccessToken() }];
     }
 
     //public async getCaptchaParams(): Promise<CaptchaParams> {

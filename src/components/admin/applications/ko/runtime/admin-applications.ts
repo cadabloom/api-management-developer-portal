@@ -53,4 +53,8 @@ export class Applications {
         //    this.application(appModel);
         //}
     }
+
+    public async approve(clientApp: ClientApp): Promise<void> {
+        console.log(clientApp);
+    }
 }
