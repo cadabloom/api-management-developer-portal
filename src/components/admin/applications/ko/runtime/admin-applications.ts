@@ -18,18 +18,23 @@ import { ClientApp } from "../../../../../custom-models/clientApp";
 export class Applications {
     public readonly pendingApplications: ko.ObservableArray<ClientApp>;
     public readonly approvedApplications: ko.ObservableArray<ClientApp>;
-
+    public isLoading: ko.Observable<boolean>;
     constructor(
         private readonly customService: CustomService,
         private readonly usersService: UsersService,
         private readonly router: Router) {
         this.pendingApplications = ko.observableArray();
         this.approvedApplications = ko.observableArray();
+        this.isLoading = ko.observable();
     }
 
     @OnMounted()
     public async loadUser(): Promise<void> {
-        console.log("KABOOM");
+        this.init();
+    }
+
+    public async init(): Promise<void> {
+        this.isLoading(true);
 
         let clientAppContracts: Array<ClientAppContract> = await this.customService.getClientApplications();
 
@@ -37,24 +42,20 @@ export class Applications {
 
         this.pendingApplications(clientApps.filter(i => i.status.toLowerCase() === 'pending'));
         this.approvedApplications(clientApps.filter(i => i.status.toLowerCase() === 'approved'));
-        //await this.usersService.ensureSignedIn();
 
-        //const model: User = await this.usersService.getCurrentUser();
-
-        //this.setUser(model);
-
-        //const appContract: ApplicationContract = await this.customService.getApplication("53444826-ce90-4116-8345-2e7232e53db6");
-
-        //const appModel: Application = new Application(appContract);
-
-        //console.log(appModel);
-
-        //if (appModel) {
-        //    this.application(appModel);
-        //}
+        this.isLoading(false);
     }
 
     public async approve(clientApp: ClientApp): Promise<void> {
         console.log(clientApp);
+        let response = await this.customService.approveClientApp(clientApp.id, clientApp.obsTitle());
+        if (response.statusCode == 200) {
+            this.init();
+        }
+    }
+
+    public async showApproveSection(clientApp: ClientApp): Promise<void> {
+        console.log(clientApp);
+        clientApp.showApprove(true);
     }
 }

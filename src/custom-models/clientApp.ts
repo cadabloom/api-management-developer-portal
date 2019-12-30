@@ -1,4 +1,5 @@
 import { ClientAppContract } from "../custom-contracts/clientApp";
+import * as ko from "knockout";
 
 export class ClientApp {
     public id: number;
@@ -9,6 +10,9 @@ export class ClientApp {
     public createdOn: Date;
     public description: string;
     public status: string;
+    public showApprove: ko.Observable<boolean>;
+    public canApprove: ko.Computed<boolean>;
+    public obsTitle: ko.Observable<string>;
     constructor(contract?: ClientAppContract) {
         this.id = contract.id;
         this.title = contract.title;
@@ -18,5 +22,8 @@ export class ClientApp {
         this.createdOn = contract.createdOn;
         this.description = contract.description;
         this.status = contract.status == 1 ? "Pending" : "Approved";
+        this.showApprove = ko.observable(false);
+        this.obsTitle = ko.observable(contract.title);
+        this.canApprove = ko.computed(() => this.obsTitle().length > 0);
     }
 }

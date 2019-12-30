@@ -59,6 +59,8 @@ import { StaticRoleService } from "./services/roleService";
 import { ProvisionService } from "./services/provisioningService";
 import { AdminApplicaitonsEditorModule } from "./components/admin/applications/ko/adminApplicationsEditor.module";
 import { AdminApplicaitonsModule } from "./components/admin/applications/ko/adminApplications.module";
+import { UserClientAppEditorModule } from "./components/users/user-clientapp/ko/userClientAppEditor.module";
+import { UserClientAppModule } from "./components/users/user-clientapp/ko/userClientApp.module";
 
 
 export class ApimDesignModule implements IInjectorModule {
@@ -110,6 +112,8 @@ export class ApimDesignModule implements IInjectorModule {
         injector.bindModule(new ValidationSummaryModule());
         injector.bindModule(new AdminApplicaitonsEditorModule());
         injector.bindModule(new AdminApplicaitonsModule());
+        injector.bindModule(new UserClientAppEditorModule());
+        injector.bindModule(new UserClientAppModule());
         injector.bindSingleton("app", App);
         injector.bindSingleton("logger", ConsoleLogger);
         injector.bindSingleton("blobStorage", AzureBlobStorage);

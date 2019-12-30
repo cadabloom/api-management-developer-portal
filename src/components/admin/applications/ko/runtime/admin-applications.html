@@ -1,98 +1,116 @@
 <h2>TEST</h2>
-<div class="tabs">
-    <input class="tab-radio" type="radio" name="requestContentType" id="requestContentType1" checked="checked">
-    <label class="tab-label" for="requestContentType1">Pending Applications</label>
+<form>
+    <div class="tabs">
+        <input class="tab-radio" type="radio" name="requestContentType" id="requestContentType1" checked="checked">
+        <label class="tab-label" for="requestContentType1">Pending Applications</label>
 
-    <div class="tab-content">
-        <div class="table">
-            <div class="table-head">
-                <div class="table-row">
-                    <div class="col-7">Organization</div>
-                    <div class="col-3">Created On</div>
-                    <div class="col-2">Action</div>
+        <div class="tab-content">
+            <!-- ko if: isLoading -->
+            <spinner></spinner>
+            <!-- /ko -->
+            <!-- ko ifnot: isLoading -->
+            <div class="table">
+                <div class="table-head">
+                    <div class="table-row">
+                        <div class="col-7">Organization</div>
+                        <div class="col-3">Created On</div>
+                        <div class="col-2">Action</div>
+                    </div>
+                </div>
+
+                <div class="table-body">
+                    <!-- ko foreach: { data: pendingApplications, as: 'clientApp' } -->
+                    <div class="table-row">
+                        <div class="col-7">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <span data-bind="text: clientApp.organizationName, click: $component.showApproveSection"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <span data-bind="text: clientApp.createdOn"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <a href="#" role="button" data-bind="click: $component.showApproveSection">
+                                        Approve
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-row" data-bind="visible: clientApp.showApprove">
+
+                        <div class="col-12">
+                            <div class="row">
+                                <div class="col-md-5"><input type="text" class="form-control" placeholder="Client app title" data-bind="textInput: clientApp.obsTitle, uniqueName: true"></div>
+                                <div class="col-md-4">
+                                </div>
+                                <div class="col-md-3"><button class="button button-primary" role="button" data-bind="click: $component.approve, enable: clientApp.canApprove">Approve</button></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /ko -->
                 </div>
             </div>
+            <!-- /ko -->
+        </div>
 
-            <div class="table-body">
-                <!-- ko foreach: { data: pendingApplications, as: 'clientApp' } -->
-                <div class="table-row">
-                    <div class="col-7">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <span data-bind="text: clientApp.organizationName"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <span data-bind="text: clientApp.createdOn"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-2">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <a href="#" class="page-link" role="button" data-bind="click: $component.approve">
-                                    Approve
-                                </a>
-                            </div>
-                        </div>
+        <input class="tab-radio" type="radio" name="requestContentType" id="requestContentType2">
+        <label class="tab-label" for="requestContentType2">Approved Applications</label>
+
+        <div class="tab-content">
+            <div class="table">
+                <div class="table-head">
+                    <div class="table-row">
+                        <div class="col-4">Organization</div>
+                        <div class="col-4">Title</div>
+                        <div class="col-3">Created On</div>
+                        <div class="col-1">Action</div>
                     </div>
                 </div>
-                <!-- /ko -->
+
+                <div class="table-body">
+                    <!-- ko foreach: { data: approvedApplications, as: 'approvedApp' } -->
+                    <div class="table-row">
+                        <div class="col-4">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <span data-bind="text: approvedApp.organizationName"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <span data-bind="text: approvedApp.title"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <span data-bind="text: approvedApp.createdOn"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-1">
+                            <div class="row">
+                                <div class="col-md-12">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /ko -->
+                </div>
             </div>
         </div>
     </div>
-
-    <input class="tab-radio" type="radio" name="requestContentType" id="requestContentType2">
-    <label class="tab-label" for="requestContentType2">Approved Applications</label>
-
-    <div class="tab-content">
-        <div class="table">
-            <div class="table-head">
-                <div class="table-row">
-                    <div class="col-4">Organization</div>
-                    <div class="col-4">Title</div>
-                    <div class="col-3">Created On</div>
-                    <div class="col-1">Action</div>
-                </div>
-            </div>
-
-            <div class="table-body">
-                <!-- ko foreach: { data: approvedApplications, as: 'approvedApp' } -->
-                <div class="table-row">
-                    <div class="col-4">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <span data-bind="text: approvedApp.organizationName"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <span data-bind="text: approvedApp.title"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-3">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <span data-bind="text: approvedApp.createdOn"></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-1">
-                        <div class="row">
-                            <div class="col-md-12">
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- /ko -->
-            </div>
-        </div>
-    </div>
-</div>
+</form>

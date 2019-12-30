@@ -14,6 +14,7 @@ import { ClientAppRequest } from "../custom-contracts/clientAppRrequest";
 import { Application } from "../custom-models/application";
 import { ApproveAppRequest } from "../custom-contracts/approveAppRequest";
 import { ApplicationContract } from "../custom-contracts/application";
+import { CreateApplicationRequest } from "../custom-contracts/createApplicationRequest";
 
 export class CustomService {
     private customGraphApiUrl: string;
@@ -28,20 +29,20 @@ export class CustomService {
     ) { }
 
     public async initialize(): Promise<void> {
-        const settings = await this.settingsProvider.getSettings();
-        console.log("TEST");
-        const token = await this.authenticator.getAccessToken();
-        console.log(settings, token);
-        if (await this.usersService.isUserSignedIn()) {
-            let user: User = await this.usersService.getCurrentUser();
-            console.log(user);
-            let response = await this.getUserGroups(user.id);
-            console.log(response);
-            let isAdmin: boolean = await this.isUserPortalAdmin(user.id);
-            console.log(isAdmin);
-        } else {
-            console.log("user not signed in");
-        }
+        //const settings = await this.settingsProvider.getSettings();
+        //console.log("TEST");
+        //const token = await this.authenticator.getAccessToken();
+        //console.log(settings, token);
+        //if (await this.usersService.isUserSignedIn()) {
+        //    let user: User = await this.usersService.getCurrentUser();
+        //    console.log(user);
+        //    let response = await this.getUserGroups(user.id);
+        //    console.log(response);
+        //    let isAdmin: boolean = await this.isUserPortalAdmin(user.id);
+        //    console.log(isAdmin);
+        //} else {
+        //    console.log("user not signed in");
+        //}
         
     }
 
@@ -63,14 +64,16 @@ export class CustomService {
         return this.handleResponse(response);
     }
 
-    public async createAppRegistrationForUser(): Promise<any> {
+    public async createAppRegistrationForUser(displayName: string): Promise<any> {
         const sasToken: string = await this.authenticator.getAccessToken();
         let customGraphApiUrlSubscriptionkey: string = await this.settingsProvider.getSetting<string>(SettingNames.customGraphApiUrlSubscriptionkey);
+        const payload: CreateApplicationRequest = { title: displayName };
         let response: HttpResponse<any>;
         const httpRequest: HttpRequest = {
             method: HttpMethod.post,
             url: await this.getUrl(`/echo/applications`),
-            headers: [{ name: SettingNames.subscriptionKeyHeaderName, value: customGraphApiUrlSubscriptionkey }]
+            headers: await this.initHeaders(),
+            body: JSON.stringify(payload)
         }
 
         try {
@@ -78,9 +81,11 @@ export class CustomService {
         } catch (error) {
             throw new Error(`Unable to complete request. Error: ${error.message}`);
         }
+
+        return this.handleResponse(response);
     }
 
-    public async createClientApp(userId: string, organizationName: string): Promise<any> {
+    public async createClientApp(userId: string, organizationName: string): Promise<HttpResponse<any>> {
         const clientApp: ClientAppRequest = { clientAppWebsiteUserId: userId, organizationName: organizationName, description: '' };
 
         let response: HttpResponse<any>;
@@ -88,7 +93,7 @@ export class CustomService {
             method: HttpMethod.post,
             url: await this.getUrl(`/echo/clientapps`),
             headers: await this.initHeaders(),
-            body: clientApp
+            body: JSON.stringify(clientApp)
         }
 
         try {
@@ -96,18 +101,21 @@ export class CustomService {
         } catch (error) {
             throw new Error(`Unable to complete request. Error: ${error.message}`);
         }
+
+        return response;
     }
 
-    public async approveClientApp(id:number, title:string): Promise<any> {
-        const appRegistration: ApplicationContract = await this.createAppRegistrationForUser();
-        const approveAppRequest: ApproveAppRequest = { description: '', title: title, identityServerClientId: appRegistration.appId, id: id };
+    public async approveClientApp(id: number, title: string): Promise<HttpResponse<any>> {
+        const appRegistration: ApplicationContract = await this.createAppRegistrationForUser(title);
+
+        const approveAppRequest: ApproveAppRequest = { description: '', title: title, identityServerClientId: appRegistration.id, id: id };
 
         let response: HttpResponse<any>;
         const httpRequest: HttpRequest = {
             method: HttpMethod.put,
             url: await this.getUrl(`/echo/clientapps`),
             headers: await this.initHeaders(),
-            body: approveAppRequest
+            body: JSON.stringify(approveAppRequest)
         }
 
         try {
@@ -115,6 +123,8 @@ export class CustomService {
         } catch (error) {
             throw new Error(`Unable to complete request. Error: ${error.message}`);
         }
+
+        return response;
 
     }
 
@@ -170,8 +180,8 @@ export class CustomService {
         } catch (error) {
             throw new Error(`Unable to complete request. Error: ${error.message}`);
         }
-
-        return this.handleResponse(response);
+        console.log(response);
+        return response.statusCode == 200 ? this.handleResponse(response) : null;
     }
 
     public async isUserPortalAdmin(userId: string): Promise<boolean> {
@@ -189,30 +199,13 @@ export class CustomService {
 
     private async initHeaders(): Promise<HttpHeader[]> {
         let customGraphApiUrlSubscriptionkey: string = await this.settingsProvider.getSetting<string>(SettingNames.customGraphApiUrlSubscriptionkey);
-        return [{ name: SettingNames.subscriptionKeyHeaderName, value: customGraphApiUrlSubscriptionkey }];
+        return [{ name: SettingNames.subscriptionKeyHeaderName, value: customGraphApiUrlSubscriptionkey }, { name: "Content-Type", value: "application/json" }];
     }
 
     private async initHeadersWithAuthorization(): Promise<HttpHeader[]> {
         let customGraphApiUrlSubscriptionkey: string = await this.settingsProvider.getSetting<string>(SettingNames.customGraphApiUrlSubscriptionkey);
-        return [{ name: SettingNames.subscriptionKeyHeaderName, value: customGraphApiUrlSubscriptionkey }, { name: "Authorization", value: await this.authenticator.getAccessToken() }];
+        return [{ name: SettingNames.subscriptionKeyHeaderName, value: customGraphApiUrlSubscriptionkey }, { name: "Content-Type", value: "application/json" }, { name: "Authorization", value: await this.authenticator.getAccessToken() }];
     }
-
-    //public async getCaptchaParams(): Promise<CaptchaParams> {
-    //    let response: HttpResponse<CaptchaParams>;
-    //    const httpRequest: HttpRequest = {
-    //        method: HttpMethod.get,
-    //        url: await this.getUrl("/captcha")
-    //    }
-
-    //    try {
-    //        response = await this.httpClient.send<any>(httpRequest);
-    //    }
-    //    catch (error) {
-    //        throw new Error(`Unable to complete request. Error: ${error.message}`);
-    //    }
-
-    //    return this.handleResponse(response);
-    //}
 
     //public async sendSignupRequest(signupRequest: SignupRequest): Promise<void> {
     //    const response = await this.httpClient.send(

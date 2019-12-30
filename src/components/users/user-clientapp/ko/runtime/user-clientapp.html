@@ -1,0 +1,102 @@
+<textblock>
+    <h2>Client credential</h2>
+</textblock>
+<!-- ko if: isLoading -->
+<spinner></spinner>
+<!-- /ko -->
+<!-- ko ifnot: isLoading-->
+<!-- ko if: application -->
+<div class="panel panel-table">
+
+    <div class="row">
+        <div class="col-md-3">App id</div>
+        <div class="col-md-9" data-bind="text: application().appId"></div>
+    </div>
+    <!--<div class="row">
+        <div class="col-md-3">Display name</div>
+        <div class="col-md-9" data-bind="text: application().displayName"></div>
+    </div>-->
+    <div class="row">
+        <div class="col-md-3">Id</div>
+        <div class="col-md-9" data-bind="text: application().id"></div>
+    </div>
+
+    <h4>Secret</h4>
+
+    <div class="table">
+        <div class="table-head">
+            <div class="table-row">
+                <div class="col-4">Description</div>
+                <div class="col-3">Expires</div>
+                <div class="col-3">Value</div>
+                <div class="col-1">Action</div>
+            </div>
+        </div>
+
+        <div class="table-body">
+            <!-- ko foreach: { data: application().passwordCredentials, as: 'passwordCredential' } -->
+            <div class="table-row">
+                <div class="col-4">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <span data-bind="text: passwordCredential.displayName"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <span data-bind="text: passwordCredential.formattedEndDate"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <span data-bind="text: passwordCredential.diplayValue"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /ko -->
+        </div>
+    </div>
+
+</div>
+<!-- /ko -->
+<!-- ko ifnot: application -->
+<form>
+    <fieldset>
+        <!-- ko ifnot: hasClientApp -->
+        <div class="form-group">
+            <div class="row">
+                <p class="col-md-12">
+                    To request for a client application, please fill up the form below and click submit request.
+                </p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="organization">Organization</label>
+            <input aria-required="true" autofocus="autofocus" spellcheck="false" class="form-control" id="organization" name="organization"
+                   autocomplete="organization" placeholder="e.g. Microsoft" type="text" data-bind="textInput: organization">
+        </div>
+        <div class="form-group">
+            <button type="button" id="signup" class="button button-primary" data-bind="click: requestClientApp, enable: canRequest">
+                Submit request
+            </button>
+        </div>
+        <!-- /ko -->
+        <!-- ko if: hasClientApp -->
+        <div class="form-group">
+            <div class="row">
+                <p class="col-md-12">
+                    Your client app request is pending approval.
+                </p>
+            </div>
+        </div>
+        <!-- /ko -->
+    </fieldset>
+</form>
+<!-- /ko -->
+<!-- /ko -->
