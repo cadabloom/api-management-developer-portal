@@ -38,6 +38,10 @@ export class PasswordCredential {
     }
 
     public get diplayValue(): string {
+        if (this.secretText) {
+            return this.secretText;
+        }
+
         return this.hint ? `${this.hint}*****` : "";
     }
 }

@@ -19,6 +19,7 @@ export class Applications {
     public readonly pendingApplications: ko.ObservableArray<ClientApp>;
     public readonly approvedApplications: ko.ObservableArray<ClientApp>;
     public isLoading: ko.Observable<boolean>;
+    public isPortalAdmin: ko.Observable<boolean>;
     constructor(
         private readonly customService: CustomService,
         private readonly usersService: UsersService,
@@ -26,6 +27,7 @@ export class Applications {
         this.pendingApplications = ko.observableArray();
         this.approvedApplications = ko.observableArray();
         this.isLoading = ko.observable();
+        this.isPortalAdmin = ko.observable();
     }
 
     @OnMounted()
@@ -34,6 +36,27 @@ export class Applications {
     }
 
     public async init(): Promise<void> {
+        this.isLoading(true);
+
+        const userId: string = await this.usersService.ensureSignedIn();
+        const isPortalAdmin: boolean = await this.customService.isUserPortalAdmin(userId)
+
+        if (isPortalAdmin) {
+            this.isPortalAdmin(true);
+            let clientAppContracts: Array<ClientAppContract> = await this.customService.getClientApplications();
+
+            let clientApps: Array<ClientApp> = new Array<ClientApp>(...clientAppContracts.map(i => new ClientApp(i)));
+
+            this.pendingApplications(clientApps.filter(i => i.status.toLowerCase() === 'pending'));
+            this.approvedApplications(clientApps.filter(i => i.status.toLowerCase() === 'approved'));
+        } else {
+            this.isPortalAdmin(false);
+        }
+
+        this.isLoading(false);
+    }
+
+    public async loadData(): Promise<void> {
         this.isLoading(true);
 
         let clientAppContracts: Array<ClientAppContract> = await this.customService.getClientApplications();
@@ -47,15 +70,17 @@ export class Applications {
     }
 
     public async approve(clientApp: ClientApp): Promise<void> {
-        console.log(clientApp);
         let response = await this.customService.approveClientApp(clientApp.id, clientApp.obsTitle());
         if (response.statusCode == 200) {
-            this.init();
+            this.loadData();
         }
     }
 
     public async showApproveSection(clientApp: ClientApp): Promise<void> {
-        console.log(clientApp);
         clientApp.showApprove(true);
+    }
+
+    public async hideApproveSection(clientApp: ClientApp): Promise<void> {
+        clientApp.showApprove(false);
     }
 }

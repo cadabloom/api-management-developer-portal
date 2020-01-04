@@ -13,8 +13,9 @@ import { ClientApp } from "../custom-models/clientApp";
 import { ClientAppRequest } from "../custom-contracts/clientAppRrequest";
 import { Application } from "../custom-models/application";
 import { ApproveAppRequest } from "../custom-contracts/approveAppRequest";
-import { ApplicationContract } from "../custom-contracts/application";
+import { ApplicationContract, ApplicationPasswordCredentialContract } from "../custom-contracts/application";
 import { CreateApplicationRequest } from "../custom-contracts/createApplicationRequest";
+import { RemoveApplicationPasswordRequest } from "../custom-contracts/removeApplicationPasswordRequest";
 
 export class CustomService {
     private customGraphApiUrl: string;
@@ -51,7 +52,7 @@ export class CustomService {
         let customGraphApiUrlSubscriptionkey:string = await this.settingsProvider.getSetting<string>(SettingNames.customGraphApiUrlSubscriptionkey);
         const httpRequest: HttpRequest = {
             method: HttpMethod.get,
-            url: await this.getUrl(`/echo/applications/${id}`),
+            url: await this.getUrl(`/applications/${id}`),
             headers: [{ name: SettingNames.subscriptionKeyHeaderName, value: customGraphApiUrlSubscriptionkey }]
         }
 
@@ -66,12 +67,11 @@ export class CustomService {
 
     public async createAppRegistrationForUser(displayName: string): Promise<any> {
         const sasToken: string = await this.authenticator.getAccessToken();
-        let customGraphApiUrlSubscriptionkey: string = await this.settingsProvider.getSetting<string>(SettingNames.customGraphApiUrlSubscriptionkey);
         const payload: CreateApplicationRequest = { title: displayName };
         let response: HttpResponse<any>;
         const httpRequest: HttpRequest = {
             method: HttpMethod.post,
-            url: await this.getUrl(`/echo/applications`),
+            url: await this.getUrl(`/applications`),
             headers: await this.initHeaders(),
             body: JSON.stringify(payload)
         }
@@ -91,9 +91,51 @@ export class CustomService {
         let response: HttpResponse<any>;
         const httpRequest: HttpRequest = {
             method: HttpMethod.post,
-            url: await this.getUrl(`/echo/clientapps`),
+            url: await this.getUrl(`/clientapps`),
             headers: await this.initHeaders(),
             body: JSON.stringify(clientApp)
+        }
+
+        try {
+            response = await this.httpClient.send<any>(httpRequest);
+        } catch (error) {
+            throw new Error(`Unable to complete request. Error: ${error.message}`);
+        }
+
+        return response;
+    }
+
+    public async createAppSecret(id: string, passwordDisplayName: string): Promise<ApplicationPasswordCredentialContract> {
+        const addSecretRequest = {
+            passwordCredential: { displayName: passwordDisplayName }
+        };
+
+        let response: HttpResponse<ApplicationPasswordCredentialContract>;
+        const httpRequest: HttpRequest = {
+            method: HttpMethod.post,
+            url: await this.getUrl(`/applications/${id}/addPassword`),
+            headers: await this.initHeaders(),
+            body: JSON.stringify(addSecretRequest)
+        }
+
+        try {
+            response = await this.httpClient.send<ApplicationPasswordCredentialContract>(httpRequest);
+        } catch (error) {
+            throw new Error(`Unable to complete request. Error: ${error.message}`);
+        }
+
+        return (response.statusCode == 200 || response.statusCode == 201) ? this.handleResponse(response) : null;
+    }
+
+    public async removeAppSecret(id: string, keyId: string): Promise<HttpResponse<any>> {
+        const removeSecretRequest: RemoveApplicationPasswordRequest = { keyId: keyId };
+
+        let response: HttpResponse<any>;
+        const httpRequest: HttpRequest = {
+            method: HttpMethod.post,
+            url: await this.getUrl(`/applications/${id}/removePassword`),
+            headers: await this.initHeaders(),
+            body: JSON.stringify(removeSecretRequest)
         }
 
         try {
@@ -113,7 +155,7 @@ export class CustomService {
         let response: HttpResponse<any>;
         const httpRequest: HttpRequest = {
             method: HttpMethod.put,
-            url: await this.getUrl(`/echo/clientapps`),
+            url: await this.getUrl(`/clientapps`),
             headers: await this.initHeaders(),
             body: JSON.stringify(approveAppRequest)
         }
@@ -134,7 +176,7 @@ export class CustomService {
         let customGraphApiUrlSubscriptionkey: string = await this.settingsProvider.getSetting<string>(SettingNames.customGraphApiUrlSubscriptionkey);
         const httpRequest: HttpRequest = {
             method: HttpMethod.get,
-            url: await this.getUrl(`/echo${userId}/groups?api-version=2019-01-01`),
+            url: await this.getUrl(`${userId}/groups?api-version=2019-01-01`),
             headers: [{ name: SettingNames.subscriptionKeyHeaderName, value: customGraphApiUrlSubscriptionkey }, { name: "Authorization", value: await this.authenticator.getAccessToken() }]
         }
 
@@ -153,7 +195,7 @@ export class CustomService {
 
         const httpRequest: HttpRequest = {
             method: HttpMethod.get,
-            url: await this.getUrl(`/echo/clientapps`),
+            url: await this.getUrl(`/clientapps`),
             headers: [{ name: SettingNames.subscriptionKeyHeaderName, value: customGraphApiUrlSubscriptionkey }, { name: "Authorization", value: await this.authenticator.getAccessToken() }]
         }
 
@@ -171,7 +213,7 @@ export class CustomService {
 
         const httpRequest: HttpRequest = {
             method: HttpMethod.get,
-            url: await this.getUrl(`/echo/appwebsiteusers/${userId}`),
+            url: await this.getUrl(`/appwebsiteusers/${userId}`),
             headers: await this.initHeaders()
         }
 

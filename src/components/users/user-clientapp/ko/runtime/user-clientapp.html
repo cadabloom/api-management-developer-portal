@@ -21,15 +21,24 @@
         <div class="col-md-9" data-bind="text: application().id"></div>
     </div>
 
-    <h4>Secret</h4>
+    <div class="row">
+        <div class="col-md-3"><h4>Secret</h4></div>
+        <div class="col-md-6"></div>
+        <div class="col-md-3">
+            <button type="button" id="signup" class="button button-primary" data-bind="click: generateSecret, visible: application().passwordCredentials.length < 2">
+                Add secret
+            </button>
+        </div>
+    </div>
+    
 
     <div class="table">
         <div class="table-head">
             <div class="table-row">
                 <div class="col-4">Description</div>
-                <div class="col-3">Expires</div>
-                <div class="col-3">Value</div>
-                <div class="col-1">Action</div>
+                <div class="col-2">Expires</div>
+                <div class="col-4">Value</div>
+                <div class="col-2">Action</div>
             </div>
         </div>
 
@@ -43,17 +52,26 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-3">
+                <div class="col-2">
                     <div class="row">
                         <div class="col-md-12">
                             <span data-bind="text: passwordCredential.formattedEndDate"></span>
                         </div>
                     </div>
                 </div>
-                <div class="col-3">
+                <div class="col-4">
                     <div class="row">
                         <div class="col-md-12">
                             <span data-bind="text: passwordCredential.diplayValue"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-2">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a href="#" role="button" data-bind="click: $component.removeSecret">
+                                Delete
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -87,7 +105,9 @@
             </button>
         </div>
         <!-- /ko -->
+
         <!-- ko if: hasClientApp -->
+        <!-- ko if: isClientAppPendingApproval-->
         <div class="form-group">
             <div class="row">
                 <p class="col-md-12">
@@ -95,6 +115,7 @@
                 </p>
             </div>
         </div>
+        <!-- /ko -->
         <!-- /ko -->
     </fieldset>
 </form>

@@ -1,4 +1,14 @@
-<h2>TEST</h2>
+<h2>Applications</h2>
+<!-- ko ifnot: isPortalAdmin -->
+    <!-- ko if: isLoading -->
+    <spinner></spinner>
+    <!-- /ko -->
+    <!-- ko ifnot: isLoading -->
+    <p>You don't have permission to view this page.</p>
+    <!-- /ko -->
+<!-- /ko -->
+
+<!-- ko if: isPortalAdmin -->
 <form>
     <div class="tabs">
         <input class="tab-radio" type="radio" name="requestContentType" id="requestContentType1" checked="checked">
@@ -38,9 +48,16 @@
                         <div class="col-2">
                             <div class="row">
                                 <div class="col-md-12">
+                                    <!-- ko ifnot: clientApp.showApprove-->
                                     <a href="#" role="button" data-bind="click: $component.showApproveSection">
                                         Approve
                                     </a>
+                                    <!-- /ko -->
+                                    <!-- ko if: clientApp.showApprove-->
+                                    <a href="#" role="button" data-bind="click: $component.hideApproveSection">
+                                        Cancel
+                                    </a>
+                                    <!-- /ko -->
                                 </div>
                             </div>
                         </div>
@@ -114,3 +131,4 @@
         </div>
     </div>
 </form>
+<!-- /ko -->

@@ -5,8 +5,8 @@ import { Component, RuntimeComponent, OnMounted } from "@paperbits/common/ko/dec
 import { UsersService } from "../../../../../services/usersService";
 import { Router } from "@paperbits/common/routing/router";
 import { CustomService } from "../../../../../services/customService";
-import { Application } from "../../../../../custom-models/application";
-import { ApplicationContract } from "../../../../../custom-contracts/application";
+import { Application, PasswordCredential } from "../../../../../custom-models/application";
+import { ApplicationContract, ApplicationPasswordCredentialContract } from "../../../../../custom-contracts/application";
 import { ClientAppContract } from "../../../../../custom-contracts/clientApp";
 import { ClientApp } from "../../../../../custom-models/clientApp";
 
@@ -23,6 +23,7 @@ export class UserClientApp {
     public canRequest: ko.Computed<boolean>;
     public isLoading: ko.Observable<boolean>;
     public userId: string;
+    public isClientAppPendingApproval: ko.Observable<boolean>;
     constructor(
         private readonly customService: CustomService,
         private readonly usersService: UsersService,
@@ -32,13 +33,12 @@ export class UserClientApp {
         this.hasClientApp = ko.observable();
         this.canRequest = ko.computed(() => this.organization() && this.organization().length > 0);
         this.isLoading = ko.observable();
+        this.isClientAppPendingApproval = ko.observable(false);
     }
 
     @OnMounted()
     public async init(): Promise<void> {
         this.isLoading(true);
-
-        console.log("user-client-app widget loaded");
 
         //ensure user is logged in
         const resourceId = await this.usersService.ensureSignedIn();
@@ -54,6 +54,8 @@ export class UserClientApp {
             //check if client app request has been approved
             if (clientApp.status.toLowerCase() === 'approved') {
                 this.loadApplicationInfo(clientApp);
+            } else {
+                this.isClientAppPendingApproval(true);
             }
             
         } else {
@@ -82,5 +84,22 @@ export class UserClientApp {
             //send email?
         }
         //display error message on error
+    }
+
+    public async generateSecret(): Promise<void> {
+        
+        const appModel: Application = this.application();
+        const secret: ApplicationPasswordCredentialContract = await this.customService.createAppSecret(this.application().id, `Secret generated on ${moment().format('l')}`);
+        appModel.passwordCredentials.push(new PasswordCredential(secret));
+        this.application(appModel);
+    }
+
+    public async removeSecret(appPassword: PasswordCredential): Promise<void> {
+        const appModel: Application = this.application();
+        const repsonse = await this.customService.removeAppSecret(appModel.id, appPassword.keyId);
+        if (repsonse.statusCode == 204) {
+            appModel.passwordCredentials.remove(appPassword);
+            this.application(appModel);
+        }
     }
 }
