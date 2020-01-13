@@ -85,5 +85,6 @@ export const SettingNames = {
     managementApiVersion: "managementApiVersion",
     managementApiAccessToken: "managementApiAccessToken",
     customGraphApiUrl: "customGraphApiUrl",
-    customGraphApiUrlSubscriptionkey: "customGraphApiUrlSubscriptionkey"
+    customGraphApiUrlSubscriptionkey: "customGraphApiUrlSubscriptionkey",
+    subscriptionKeyHeaderName: "Ocp-Apim-Subscription-Key"
 };

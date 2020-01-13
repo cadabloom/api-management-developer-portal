@@ -1,4 +1,4 @@
-<h2>Applications</h2>
+<h2>Service Providers</h2>
 <!-- ko ifnot: isPortalAdmin -->
     <!-- ko if: isLoading -->
     <spinner></spinner>
@@ -12,7 +12,7 @@
 <form>
     <div class="tabs">
         <input class="tab-radio" type="radio" name="requestContentType" id="requestContentType1" checked="checked">
-        <label class="tab-label" for="requestContentType1">Pending Applications</label>
+        <label class="tab-label" for="requestContentType1">Pending Requests</label>
 
         <div class="tab-content">
             <!-- ko if: isLoading -->
@@ -80,7 +80,7 @@
         </div>
 
         <input class="tab-radio" type="radio" name="requestContentType" id="requestContentType2">
-        <label class="tab-label" for="requestContentType2">Approved Applications</label>
+        <label class="tab-label" for="requestContentType2">Approved Service Providers</label>
 
         <div class="tab-content">
             <div class="table">

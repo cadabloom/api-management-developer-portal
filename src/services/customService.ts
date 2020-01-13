@@ -148,9 +148,10 @@ export class CustomService {
     }
 
     public async approveClientApp(id: number, title: string): Promise<HttpResponse<any>> {
-        const appRegistration: ApplicationContract = await this.createAppRegistrationForUser(title);
+        let pubShareAppTitle: string = `PubShareClientApp-${title}`;
+        const appRegistration: ApplicationContract = await this.createAppRegistrationForUser(pubShareAppTitle);
 
-        const approveAppRequest: ApproveAppRequest = { description: '', title: title, identityServerClientId: appRegistration.id, id: id };
+        const approveAppRequest: ApproveAppRequest = { description: '', title: pubShareAppTitle, identityServerClientId: appRegistration.id, id: id };
 
         let response: HttpResponse<any>;
         const httpRequest: HttpRequest = {
