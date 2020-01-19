@@ -9,8 +9,8 @@
 <div class="panel panel-table">
 
     <div class="row">
-        <div class="col-md-3">App id</div>
-        <div class="col-md-9" data-bind="text: application().appId"></div>
+        <div class="col-md-3"><h4>Client Id</h4></div>
+        <div class="col-md-9"><h4 data-bind="text: application().appId"></h4></div>
     </div>
     <!--<div class="row">
         <div class="col-md-3">Display name</div>
@@ -18,7 +18,7 @@
     </div>-->
 
     <div class="row">
-        <div class="col-md-3"><h4>Secret</h4></div>
+        <div class="col-md-3"><h4>Secrets</h4></div>
         <div class="col-md-6"></div>
         <div class="col-md-3">
             <button type="button" id="signup" class="button button-primary" data-bind="click: generateSecret, visible: application().passwordCredentials.length < 2">
@@ -26,7 +26,10 @@
             </button>
         </div>
     </div>
-    
+
+    <div class="row">
+        <div class="col-md-12">**Maximum of only two secrets at a time</div>
+    </div>
 
     <div class="table">
         <div class="table-head">
