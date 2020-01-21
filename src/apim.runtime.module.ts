@@ -64,6 +64,7 @@ import { ProvisionService } from "./services/provisioningService";
 import { CustomService } from "./services/customService";
 import { Applications } from "./components/admin/applications/ko/runtime/admin-applications";
 import { UserClientApp } from "./components/users/user-clientapp/ko/runtime/user-clientapp";
+import { UserServices } from "./components/users/user-services/ko/runtime/user-services";
 
 export class ApimRuntimeModule implements IInjectorModule {
     public register(injector: IInjector): void {
@@ -115,6 +116,7 @@ export class ApimRuntimeModule implements IInjectorModule {
         injector.bind("customService", CustomService);
         injector.bind("applications", Applications)
         injector.bind("userClientApp", UserClientApp);
+        injector.bind("userServices", UserServices)
         injector.bindSingleton("tenantService", TenantService);
         injector.bindSingleton("backendService", BackendService);
         injector.bindSingleton("aadService", AadService);

@@ -61,6 +61,8 @@ import { AdminApplicaitonsEditorModule } from "./components/admin/applications/k
 import { AdminApplicaitonsModule } from "./components/admin/applications/ko/adminApplications.module";
 import { UserClientAppEditorModule } from "./components/users/user-clientapp/ko/userClientAppEditor.module";
 import { UserClientAppModule } from "./components/users/user-clientapp/ko/userClientApp.module";
+import { UserServicesModule } from "./components/users/user-services/ko/userServices.module";
+import { UserServicesEditorModule } from "./components/users/user-services/ko/userServicesEditor.module";
 
 
 export class ApimDesignModule implements IInjectorModule {
@@ -114,6 +116,8 @@ export class ApimDesignModule implements IInjectorModule {
         injector.bindModule(new AdminApplicaitonsModule());
         injector.bindModule(new UserClientAppEditorModule());
         injector.bindModule(new UserClientAppModule());
+        injector.bindModule(new UserServicesEditorModule());
+        injector.bindModule(new UserServicesModule());
         injector.bindSingleton("app", App);
         injector.bindSingleton("logger", ConsoleLogger);
         injector.bindSingleton("blobStorage", AzureBlobStorage);
