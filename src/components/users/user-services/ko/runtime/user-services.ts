@@ -14,4 +14,20 @@ import { CustomService } from "../../../../../services/customService";
     injectable: "userServices"
 })
 export class UserServices {
+    public showForm: ko.Observable<boolean>;
+
+    constructor(
+        private readonly customService: CustomService,
+        private readonly usersService: UsersService,
+        private readonly router: Router) {
+        this.showForm = ko.observable(false);
+    }
+
+    public async addNew(): Promise<void> {
+        this.showForm(true);
+    }
+
+    public async save(): Promise<void> {
+        this.showForm(false);
+    }
 }
