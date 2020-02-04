@@ -5,6 +5,7 @@
 <spinner></spinner>
 <!-- /ko -->
 <!-- ko ifnot: isLoading-->
+<!-- ko if: isAuthorized -->
 <!-- ko if: application -->
 <div class="panel panel-table">
 
@@ -104,7 +105,6 @@
             </button>
         </div>
         <!-- /ko -->
-
         <!-- ko if: hasClientApp -->
         <!-- ko if: isClientAppPendingApproval-->
         <div class="form-group">
@@ -118,5 +118,6 @@
         <!-- /ko -->
     </fieldset>
 </form>
+<!-- /ko -->
 <!-- /ko -->
 <!-- /ko -->

@@ -13,17 +13,19 @@ export class ClientApp {
     public showApprove: ko.Observable<boolean>;
     public canApprove: ko.Computed<boolean>;
     public obsTitle: ko.Observable<string>;
+    public isAuthorized: boolean;
     constructor(contract?: ClientAppContract) {
-        this.id = contract.id;
-        this.title = contract.title;
-        this.organizationName = contract.organizationName;
-        this.clientAppWebsiteUserId = contract.clientAppWebsiteUserId;
-        this.identityServerClientId = contract.identityServerClientId;
-        this.createdOn = contract.createdOn;
-        this.description = contract.description;
-        this.status = contract.status == 1 ? "Pending" : "Approved";
+        this.id = contract?.id;
+        this.title = contract?.title;
+        this.organizationName = contract?.organizationName;
+        this.clientAppWebsiteUserId = contract?.clientAppWebsiteUserId;
+        this.identityServerClientId = contract?.identityServerClientId;
+        this.createdOn = contract?.createdOn;
+        this.description = contract?.description;
+        this.status = contract?.status == 1 ? "Pending" : "Approved";
         this.showApprove = ko.observable(false);
-        this.obsTitle = ko.observable(contract.title);
-        this.canApprove = ko.computed(() => this.obsTitle().length > 0);
+        this.obsTitle = ko.observable(contract?.title);
+        this.canApprove = ko.computed(() => this.obsTitle() && this.obsTitle().length > 0);
+        this.isAuthorized = true;
     }
 }

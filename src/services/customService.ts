@@ -44,7 +44,8 @@ export class CustomService {
         //} else {
         //    console.log("user not signed in");
         //}
-        
+        //const token = await this.authenticator.getAccessToken();
+        //console.log(token);
     }
 
     public async getApplication(id: string): Promise<any> {
@@ -53,7 +54,7 @@ export class CustomService {
         const httpRequest: HttpRequest = {
             method: HttpMethod.get,
             url: await this.getUrl(`/applications/${id}`),
-            headers: [{ name: SettingNames.subscriptionKeyHeaderName, value: customGraphApiUrlSubscriptionkey }]
+            headers: await this.initHeadersWithAuthorization()
         }
 
         try {
@@ -72,7 +73,7 @@ export class CustomService {
         const httpRequest: HttpRequest = {
             method: HttpMethod.post,
             url: await this.getUrl(`/applications`),
-            headers: await this.initHeaders(),
+            headers: await this.initHeadersWithAuthorization(),
             body: JSON.stringify(payload)
         }
 
@@ -91,8 +92,8 @@ export class CustomService {
         let response: HttpResponse<any>;
         const httpRequest: HttpRequest = {
             method: HttpMethod.post,
-            url: await this.getUrl(`/clientapps`),
-            headers: await this.initHeaders(),
+            url: await this.getUrl(`/CreateClientApp`), //await this.getUrl(`/clientapps`),
+            headers: await this.initHeadersWithAuthorization(),
             body: JSON.stringify(clientApp)
         }
 
@@ -114,7 +115,7 @@ export class CustomService {
         const httpRequest: HttpRequest = {
             method: HttpMethod.post,
             url: await this.getUrl(`/applications/${id}/addPassword`),
-            headers: await this.initHeaders(),
+            headers: await this.initHeadersWithAuthorization(),
             body: JSON.stringify(addSecretRequest)
         }
 
@@ -134,7 +135,7 @@ export class CustomService {
         const httpRequest: HttpRequest = {
             method: HttpMethod.post,
             url: await this.getUrl(`/applications/${id}/removePassword`),
-            headers: await this.initHeaders(),
+            headers: await this.initHeadersWithAuthorization(),
             body: JSON.stringify(removeSecretRequest)
         }
 
@@ -155,9 +156,9 @@ export class CustomService {
 
         let response: HttpResponse<any>;
         const httpRequest: HttpRequest = {
-            method: HttpMethod.put,
-            url: await this.getUrl(`/clientapps`),
-            headers: await this.initHeaders(),
+            method: HttpMethod.post, //HttpMethod.put,
+            url: await this.getUrl(`/ApproveClientApp`), //await this.getUrl(`/clientapps`),
+            headers: await this.initHeadersWithAuthorization(),
             body: JSON.stringify(approveAppRequest)
         }
 
@@ -196,7 +197,7 @@ export class CustomService {
 
         const httpRequest: HttpRequest = {
             method: HttpMethod.get,
-            url: await this.getUrl(`/clientapps`),
+            url: await this.getUrl(`/GetApplications`), //await this.getUrl(`/clientapps`),
             headers: [{ name: SettingNames.subscriptionKeyHeaderName, value: customGraphApiUrlSubscriptionkey }, { name: "Authorization", value: await this.authenticator.getAccessToken() }]
         }
 
@@ -209,13 +210,13 @@ export class CustomService {
         return this.handleResponse(response);
     }
 
-    public async getUserClientApplication(userId: string): Promise<ClientAppContract> {
+    public async getUserClientApplication(userId: string): Promise<ClientApp> {
         let response: HttpResponse<ClientAppContract>;
-
+        let clientApp: ClientApp = null;
         const httpRequest: HttpRequest = {
             method: HttpMethod.get,
-            url: await this.getUrl(`/appwebsiteusers/${userId}`),
-            headers: await this.initHeaders()
+            url: await this.getUrl(`/GetClientAppByWebsiteUser/${userId}`), //await this.getUrl(`/appwebsiteusers/${userId}`),
+            headers: await this.initHeadersWithAuthorization()
         }
 
         try {
@@ -224,7 +225,16 @@ export class CustomService {
             throw new Error(`Unable to complete request. Error: ${error.message}`);
         }
         console.log(response);
-        return response.statusCode == 200 ? this.handleResponse(response) : null;
+
+        if (response.statusCode == 200) {
+            let clientAppContract: ClientAppContract = this.handleResponse(response);
+            clientApp = new ClientApp(clientAppContract);
+        } else if (response.statusCode == 403) {
+            clientApp = new ClientApp();
+            clientApp.isAuthorized = false;
+        }
+        //return response.statusCode == 200 ? this.handleResponse(response) : null;
+        return clientApp; 
     }
 
     public async isUserPortalAdmin(userId: string): Promise<boolean> {

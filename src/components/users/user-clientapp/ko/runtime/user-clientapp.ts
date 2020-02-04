@@ -24,6 +24,7 @@ export class UserClientApp {
     public isLoading: ko.Observable<boolean>;
     public userId: string;
     public isClientAppPendingApproval: ko.Observable<boolean>;
+    public isAuthorized: ko.Observable<boolean>;
     constructor(
         private readonly customService: CustomService,
         private readonly usersService: UsersService,
@@ -34,6 +35,7 @@ export class UserClientApp {
         this.canRequest = ko.computed(() => this.organization() && this.organization().length > 0);
         this.isLoading = ko.observable();
         this.isClientAppPendingApproval = ko.observable(false);
+        this.isAuthorized = ko.observable(true);
     }
 
     @OnMounted()
@@ -45,19 +47,21 @@ export class UserClientApp {
         //get logged in user id of logged in user
         this.userId = resourceId.split('/')[2];
 
-        const clientAppContract: ClientAppContract = await this.customService.getUserClientApplication(this.userId);
-        
-        if (clientAppContract) {
-            this.hasClientApp(true);
-            const clientApp: ClientApp = new ClientApp(clientAppContract);
+        const clientApp: ClientApp = await this.customService.getUserClientApplication(this.userId);
 
+        if (clientApp && !clientApp.isAuthorized) {
+            this.isAuthorized(false);
+        }
+
+        if (clientApp && clientApp.isAuthorized) {
+            this.hasClientApp(true);
+            
             //check if client app request has been approved
             if (clientApp.status.toLowerCase() === 'approved') {
                 this.loadApplicationInfo(clientApp);
             } else {
                 this.isClientAppPendingApproval(true);
             }
-            
         } else {
             this.hasClientApp(false);
         }
